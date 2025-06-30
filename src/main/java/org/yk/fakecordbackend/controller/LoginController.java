@@ -7,18 +7,17 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.yk.fakecordbackend.dto.FakecordUserDto;
 import org.yk.fakecordbackend.dto.LoginDto;
 import org.yk.fakecordbackend.dto.ServerCreationDto;
-import org.yk.fakecordbackend.dto.ServerRegistrationDto;
-import org.yk.fakecordbackend.service.JwtService;
-import org.yk.fakecordbackend.service.MembershipService;
-import org.yk.fakecordbackend.service.ServerService;
-import org.yk.fakecordbackend.service.UserService;
+import org.yk.fakecordbackend.entity.InviteDto;
+import org.yk.fakecordbackend.service.*;
 
 @RestController
-@RequestMapping("/fakecordfrontend")
+@RequestMapping("/api")
 @Slf4j
 public class LoginController {
 
@@ -26,19 +25,20 @@ public class LoginController {
   private final ServerService serverService;
   private final MembershipService membershipService;
   private final JwtService jwtService;
-  private final AuthenticationManagerBuilder authenticationManagerBuilder;
+  private final ServerInviteService serverInviteService;
 
   LoginController(
       UserService userService,
       ServerService serverService,
       MembershipService membershipService,
       JwtService jwtService,
-      AuthenticationManagerBuilder authenticationManagerBuilder) {
+      AuthenticationManagerBuilder authenticationManagerBuilder,
+      ServerInviteService serverInviteService) {
     this.userService = userService;
     this.serverService = serverService;
     this.membershipService = membershipService;
     this.jwtService = jwtService;
-    this.authenticationManagerBuilder = authenticationManagerBuilder;
+    this.serverInviteService = serverInviteService;
   }
 
   @PostMapping("/login")
@@ -65,6 +65,15 @@ public class LoginController {
     }
   }
 
+  @GetMapping("auth/me")
+  public ResponseEntity<?> checkLogin(@AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    return ResponseEntity.ok(userDetails.getUsername());
+  }
+
   @PostMapping("/signup")
   public ResponseEntity<?> signupUser(@RequestBody FakecordUserDto user) {
     log.info(user.toString());
@@ -83,7 +92,7 @@ public class LoginController {
     return ResponseEntity.ok().body(membershipService.getServers(username));
   }
 
-  @PostMapping("/registered-servers")
+  @PostMapping("/server")
   public ResponseEntity<?> createServer(
       @RequestBody ServerCreationDto serverCreationDto, Authentication authentication) {
     log.info(serverCreationDto.toString());
@@ -98,14 +107,18 @@ public class LoginController {
   }
 
   @PostMapping("/server-registration")
-  public ResponseEntity<?> registerToServer(
-      @RequestBody ServerRegistrationDto serverRegistrationDto) {
-    log.info(serverRegistrationDto.toString());
-    return null;
+  public ResponseEntity<?> registerToServer(@RequestBody InviteDto inviteDto) {
+    log.info(inviteDto.toString());
+    return ResponseEntity.ok("Invite has been created successfully");
   }
 
-  @GetMapping("/signup")
-  public void test() {
-    System.out.println("test");
+  @PostMapping("/server/invite")
+  public String createInvite(@RequestBody InviteDto inviteDto, Authentication authentication) {
+    log.info(inviteDto.toString());
+    try {
+      return serverInviteService.createInvite(inviteDto.getServerId(), inviteDto.getHours());
+    } catch (IllegalArgumentException e) {
+      return "false";
+    }
   }
 }
