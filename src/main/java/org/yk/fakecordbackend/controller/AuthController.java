@@ -6,10 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 import org.yk.fakecordbackend.dto.FakecordUserDto;
 import org.yk.fakecordbackend.dto.LoginDto;
 import org.yk.fakecordbackend.service.AuthService;
@@ -47,6 +46,7 @@ public class AuthController {
           ResponseCookie.from("token", token)
               .httpOnly(true)
               .secure(false)
+              .path("/")
               .maxAge(10 * 60 * 60)
               .sameSite("Strict")
               .build();
@@ -57,5 +57,14 @@ public class AuthController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email or username is invalid!");
     }
+  }
+
+  @GetMapping("auth/me")
+  public ResponseEntity<?> checkLogin(@AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    return ResponseEntity.ok(userDetails.getUsername());
   }
 }
