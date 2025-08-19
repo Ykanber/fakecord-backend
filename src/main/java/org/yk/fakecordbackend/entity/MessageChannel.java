@@ -1,6 +1,7 @@
 package org.yk.fakecordbackend.entity;
 
 import jakarta.persistence.*;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -19,4 +20,9 @@ public class MessageChannel {
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
   private FakecordServer server;
+
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private Set<Message> messages;
 }

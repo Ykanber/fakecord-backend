@@ -1,5 +1,6 @@
 package org.yk.fakecordbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -14,17 +15,18 @@ public class Message {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @ToString.Exclude
-  @EqualsAndHashCode.Exclude
+  @ManyToOne
+  @JoinColumn(name = "sender_email")
+  @JsonIgnore
   private FakecordUser sender;
 
-  private String content;
+  private String messageText;
 
   private LocalDateTime createTime = LocalDateTime.now();
 
   @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
+  @JsonIgnore
   private MessageChannel channel;
 }
