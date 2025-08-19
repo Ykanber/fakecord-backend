@@ -6,28 +6,25 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@Entity
-@Table(name = "membership")
 @Data
-public class Membership {
+@Entity
+public class Message {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne()
-  @JoinColumn(name = "server_id", nullable = false)
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  private FakecordServer server;
+  private FakecordUser sender;
 
-  @ManyToOne
-  @JoinColumn(name = "username", nullable = false)
+  private String content;
+
+  private LocalDateTime createTime = LocalDateTime.now();
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
   @ToString.Exclude
   @EqualsAndHashCode.Exclude
-  private FakecordUser user;
-
-  private String role;
-  private String nickname;
-  private LocalDateTime joinedAt = LocalDateTime.now();
+  private MessageChannel channel;
 }

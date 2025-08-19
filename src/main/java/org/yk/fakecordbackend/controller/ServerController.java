@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.yk.fakecordbackend.dto.ChannelCreationDto;
 import org.yk.fakecordbackend.dto.ServerCreationDto;
 import org.yk.fakecordbackend.entity.InviteDto;
 import org.yk.fakecordbackend.service.MembershipService;
@@ -28,6 +29,13 @@ public class ServerController {
     return ResponseEntity.ok().body(membershipService.getServers(username));
   }
 
+  @GetMapping("/{serverId}/channels")
+  public ResponseEntity<?> getServerChannels(
+      @PathVariable int serverId, Authentication authentication) {
+    log.info(String.valueOf(serverId));
+    return ResponseEntity.ok().body(serverService.getServerChannels(serverId));
+  }
+
   @PostMapping()
   public ResponseEntity<?> createServer(
       @RequestBody ServerCreationDto serverCreationDto, Authentication authentication) {
@@ -40,6 +48,15 @@ public class ServerController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body("Server name is invalid!");
     }
+  }
+
+  @PostMapping("/channel")
+  public ResponseEntity<?> createChannel(
+      @RequestBody ChannelCreationDto channelCreationDto, Authentication authentication) {
+    log.info(channelCreationDto.toString());
+    String username = authentication.getName();
+    serverService.createServerChannel(channelCreationDto);
+    return ResponseEntity.ok("Server has been created successfully");
   }
 
   @PostMapping("/server-registration")

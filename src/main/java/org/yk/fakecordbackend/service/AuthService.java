@@ -32,7 +32,7 @@ public class AuthService {
 
     userData.ifPresentOrElse(
         fakecordUser -> {
-          if (!fakecordUser.getPassword().equals(loginDto.getPassword())) {
+          if (!passwordEncoder.matches(loginDto.getPassword(), fakecordUser.getPassword())) {
             throw new InvalidCredentialsException("Kullanıcı adı veya şifre hatalı");
           }
         },
