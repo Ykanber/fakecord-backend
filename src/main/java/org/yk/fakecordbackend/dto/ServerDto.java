@@ -9,8 +9,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class ServerLogoDto {
-
-    String name;
-    String logoUrl;
+public class ServerDto {
+  long serverId;
+  String name;
+  String logoUrl;
 }

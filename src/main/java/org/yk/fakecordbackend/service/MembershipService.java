@@ -1,15 +1,14 @@
 package org.yk.fakecordbackend.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import org.yk.fakecordbackend.dto.ServerLogoDto;
+import org.yk.fakecordbackend.dto.ServerDto;
 import org.yk.fakecordbackend.entity.FakecordUser;
 import org.yk.fakecordbackend.mapper.FakecordServerMapper;
 import org.yk.fakecordbackend.repository.MembershipRepository;
 import org.yk.fakecordbackend.repository.UserRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MembershipService {
@@ -24,7 +23,7 @@ public class MembershipService {
         this.userRepository = userRepository;
     }
 
-    public List<ServerLogoDto> getServers(String username) {
+    public List<ServerDto> getServers(String username) {
         FakecordUser user = userRepository.findByUsername(username).orElseThrow(
                 () -> new EntityNotFoundException("<UNK>")
         );
